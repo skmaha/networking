@@ -1,7 +1,6 @@
-# networking
 Cisco 891F router and 3560cx switch configuration
 
-# README - Cisco 891F Router Configuration
+# Cisco 891F Router Configuration
 
 ## Overview
 
@@ -134,3 +133,101 @@ The router uses **ACL 100** to allow traffic from the internal networks (VLANs) 
 ## Conclusion
 
 This configuration provides a robust setup for handling multiple VLANs, offering DHCP services for each VLAN, implementing NAT for internet access, and securing access to the router via VTY, console, and auxiliary lines. This document is designed to serve as an overview of the router configuration and can be used for future reference or troubleshooting.
+
+# 3560cx Access Switch Configuration
+
+This document provides a detailed overview of the running configuration for the **Skuas Access Switch (skuas-access-sw1)**.
+
+## Overview
+
+- **Hostname**: `skuas-access-sw1`
+- **IOS Version**: 15.2
+- **VLAN Configuration**: Multiple VLANs are defined for segmented networking.
+- **Spanning Tree**: Rapid PVST is enabled for improved network resilience.
+- **Interfaces**: A mixture of access and trunk ports, with specified VLAN assignments.
+- **Security**: SSH for secure remote access, with local user authentication and encryption.
+  
+## Key Configurations
+
+### 1. **Hostname and Version**
+
+- **Hostname**: `skuas-access-sw1`
+- **IOS Version**: `15.2`
+  
+### 2. **VLANs**
+
+The following VLANs are configured for network segmentation:
+
+- **VLAN 10**: Management Network
+- **VLAN 30**: Home Network
+- **VLAN 40**: Development Network
+- **VLAN 50**: QA Network
+- **VLAN 60**: Production Network
+- **VLAN 70**: DMZ Network
+
+### 3. **Interface Configuration**
+
+- **GigabitEthernet0/1 - 4**: Access ports assigned to specific VLANs.
+  - `GigabitEthernet0/1` → VLAN 10 (Management)
+  - `GigabitEthernet0/2 - 4` → VLAN 40 (Dev Network)
+  - `GigabitEthernet0/8 - 9` → VLAN 30 (Home Network)
+  - `GigabitEthernet0/10` → VLAN 70 (DMZ Network)
+
+- **GigabitEthernet0/13**: Trunk port, connecting to `891F router`.
+
+- **GigabitEthernet0/14**: Disabled port (no switchport, no IP address assigned).
+
+- **VLAN Interfaces**: The switch also has several VLAN interfaces (SVIs) configured with IP addresses for routing:
+  - `Vlan10`: `10.1.1.2/24` (Management)
+  - `Vlan30`: `192.168.30.2/24` (Home Network)
+  - `Vlan40`: `172.16.40.2/24` (Dev Network)
+  - `Vlan50`: `172.16.50.2/24` (QA Network)
+  - `Vlan60`: `20.60.60.2/24` (Production Network)
+  - `Vlan70`: `20.70.70.2/24` (DMZ Network)
+
+### 4. **Spanning Tree Protocol (STP)**
+
+- **STP Mode**: `rapid-pvst` (Rapid Per VLAN Spanning Tree) for faster convergence.
+- **Extend System ID**: Ensures unique bridge IDs for each VLAN.
+
+### 5. **Security Settings**
+
+- **SSH Version 2**: Secure Shell (SSH) is enabled for encrypted remote access.
+- **HTTP Server**: HTTP and HTTPS servers are enabled for web-based management.
+- **Login Settings**: Local user database is used for login authentication via SSH on virtual terminal lines.
+
+  - **VTY Lines 0-4**: SSH access only.
+  - **VTY Lines 5-15**: Standard login, no SSH restrictions.
+
+### 6. **Crypto Settings**
+
+A self-signed certificate is used for secure communications:
+
+- **Trustpoint**: `TP-self-signed-3833869440`
+- **Subject Name**: `IOS-Self-Signed-Certificate-3833869440`
+
+### 7. **Routing and MTU**
+
+- **Routing**: IP routing is enabled.
+- **MTU**: System Maximum Transmission Unit is set to `1500`.
+
+### 8. **Access Control and User Credentials**
+
+- **Username**: `sku` with privilege level 15.
+- **Password**: Encrypted, for secure access.
+
+### 9. **Additional Configuration**
+
+- **IP Forwarding**: Protocol `nd` is forwarded (ND for Neighbor Discovery Protocol).
+- **VTP Mode**: Set to `transparent`, ensuring the switch does not participate in VLAN database propagation.
+
+## Conclusion
+
+This configuration sets up a secure, well-segmented network on the `skuas-access-sw1` switch. VLANs have been configured for efficient network segmentation, spanning tree is optimized for rapid convergence, and secure remote access is enabled through SSH. The use of a self-signed certificate ensures basic encrypted communication for management tasks.
+  
+## Considerations for Future Changes
+
+- Review user privilege settings and ensure that only authorized personnel have access to privilege level 15.
+- For enhanced security, consider using a certificate signed by a trusted authority for SSL/TLS communications.
+- Regularly update the switch firmware to ensure it remains secure and supports the latest features.
+
